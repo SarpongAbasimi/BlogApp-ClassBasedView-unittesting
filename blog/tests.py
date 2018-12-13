@@ -48,7 +48,6 @@ class TestBlogView(TestCase):
 
         self.client=Client()
 
-
     def test_if_content_exit(self):
         self.assertEqual(f"{self.post.content}",'I love Africa')
 
@@ -71,6 +70,31 @@ class TestBlogView(TestCase):
         self.assertEqual(non_response.status_code,404)
         self.assertEqual(second_non_response.status_code,404)
         self.assertTemplateUsed(response,'post_detail.html')
+    
+    def test_create_post_view(self):
+        response=self.client.post(reverse('post_new'),{
+           'title':'This is my test',
+           'content':'Always test your dango project',
+           'author':self.user 
+        })
+        
+        self.assertEqual(response.status_code,200)
+        self.assertTemplateUsed('post_new.html')
+        self.assertContains(response,'This is my test')
 
+    def test_update_post_view(self):
+        response=self.client.post(reverse('post_edit',args=str(1)),{
+            'title':'Testing update Page',
+            'content': 'Did the test pass?'
+        })
+        self.assertEqual(response.status_code,302)
+        self.assertTemplateUsed('post_edit.html')
+
+    def test_delete_post_view(self):
+        non_response=self.client.get('delete_post',args=str(1))
+        response=self.client.get(reverse('delete_post',args=str(1)))
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(non_response.status_code,404)
+        self.assertTemplateUsed('delete_post.html')
 
 
